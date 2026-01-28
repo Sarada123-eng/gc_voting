@@ -1,5 +1,5 @@
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = "https://gc-voting-system-backend.onrender.com/api";
 
 export async function apiRequest(endpoint, method = "GET", body) {
   const token = localStorage.getItem("token");
