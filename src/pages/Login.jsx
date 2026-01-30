@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
-
+import { toast } from "react-toastify";
 
 function Login({ setIsAuth }) {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ function Login({ setIsAuth }) {
     try {
       const res = await apiRequest("/auth/login", "POST", {
         email,
-        password
+        password,
       });
 
       localStorage.setItem("token", res.token);
@@ -53,9 +53,14 @@ function Login({ setIsAuth }) {
       await apiRequest("/auth/signup", "POST", {
         email,
         password,
-        branch
+        branch,
       });
+
+      toast.success("Account created successfully. You can now log in.");
       setMode("login");
+      setPassword("");
+      setBranch("");
+
     } catch (err) {
       setError(err.message || "Signup failed");
     } finally {
@@ -83,7 +88,7 @@ function Login({ setIsAuth }) {
           type="email"
           placeholder="joe@iitbbs.ac.in"
           value={email}
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <label>Password</label>
@@ -91,7 +96,7 @@ function Login({ setIsAuth }) {
           type="password"
           placeholder="Password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         {mode === "signup" && (
@@ -99,7 +104,7 @@ function Login({ setIsAuth }) {
             <label>Branch</label>
             <select
               value={branch}
-              onChange={e => setBranch(e.target.value)}
+              onChange={(e) => setBranch(e.target.value)}
             >
               <option value="">Select branch</option>
               <option value="Civil">Civil</option>

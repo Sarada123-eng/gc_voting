@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Login from "./pages/Login";
 import Vote from "./pages/Vote";
 
@@ -21,6 +24,9 @@ function App() {
 
   return (
     <>
+      {/* Toast container (global) */}
+      <ToastContainer position="top-center" autoClose={3000} />
+
       <div className="header">
         GC Coordinator Voting System
       </div>
