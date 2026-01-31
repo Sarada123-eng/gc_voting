@@ -60,14 +60,22 @@ function Vote() {
         <div className="vote-list">
           {coordinators.map(coord => (
             <div key={coord.id} className="vote-item-modern">
-              <p className="vote-name">{coord.name}</p>
+              <img
+                src={coord.photoUrl}
+                alt={coord.name}
+                className="coord-photo"
+              />
 
-              <button
-                onClick={() => handleVote(coord.id)}
-                disabled={loading || hasVoted}
-              >
-                Vote
-              </button>
+              <div className="coord-info">
+                <p className="vote-name">{coord.name}</p>
+
+                <button
+                  onClick={() => handleVote(coord.id)}
+                  disabled={loading || hasVoted}
+                >
+                  Vote
+                </button>
+              </div>
             </div>
           ))}
         </div>

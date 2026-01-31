@@ -250,11 +250,26 @@ button:disabled {
 
 .vote-item-modern {
   display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.coord-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.coord-info {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
-  background: #f1f5f9;
-  border-radius: 14px;
+  width: 100%;
 }
 
 .vote-name {
