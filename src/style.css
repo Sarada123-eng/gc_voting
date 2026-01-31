@@ -283,6 +283,7 @@ button:disabled {
   background: white;
   cursor: pointer;
   font-weight: 500;
+  color: #0f172a;
 }
 
 .branch-card.active {
