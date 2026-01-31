@@ -24,19 +24,19 @@ function Vote() {
   }
 
   async function handleVote(coordinatorId) {
-    setLoading(true);
-    setMessage("");
+  setLoading(true);
+  setMessage("");
 
-    try {
-      const res = await apiRequest(`/vote/${coordinatorId}`, "POST");
-      setMessage(res.message);
-      setHasVoted(true);
-    } catch (err) {
-      setMessage(err.message || "Voting failed");
-    } finally {
-      setLoading(false);
-    }
+  try {
+    await apiRequest(`/vote/${coordinatorId}`, "POST");
+    navigate("/thank-you");
+  } catch (err) {
+    setMessage(err.message || "Voting failed");
+  } finally {
+    setLoading(false);
   }
+}
+
 
   function handleLogout() {
     localStorage.removeItem("token");

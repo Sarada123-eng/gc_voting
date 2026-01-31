@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Login from "./pages/Login";
 import Vote from "./pages/Vote";
 import BranchSelection from "./pages/BranchSelection";
+import AlreadyVoted from "./pages/AlreadyVoted";
 import { apiRequest } from "./api";
 
 function App() {
@@ -70,6 +71,13 @@ function App() {
               )
             }
           />
+
+          <Route
+  path="/thank-you"
+  element={
+    isAuth ? <AlreadyVoted /> : <Navigate to="/login" />
+  }
+/>
 
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
