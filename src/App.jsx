@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Vote from "./pages/Vote";
 import BranchSelection from "./pages/BranchSelection";
 import AlreadyVoted from "./pages/AlreadyVoted";
+import AdminDashboard from "./pages/AdminDashboard";
 import { apiRequest } from "./api";
 
 function App() {
@@ -45,6 +46,8 @@ function App() {
             path="/login"
             element={<Login setIsAuth={setIsAuth} />}
           />
+
+          <Route path="/admin" element={<AdminDashboard />} />
 
           <Route
             path="/select-branch"
