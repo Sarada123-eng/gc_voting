@@ -31,7 +31,7 @@ function BranchSelection() {
       });
 
       toast.success("Branch selected successfully");
-      navigate("/vote");
+      window.location.href = "/vote";
     } catch (err) {
       toast.error(err.message || "Failed to save branch");
     } finally {
