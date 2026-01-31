@@ -1,35 +1,42 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 import Login from "./pages/Login";
 import Vote from "./pages/Vote";
+import BranchSelection from "./pages/BranchSelection";
+import { apiRequest } from "./api";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
+  const [branch, setBranch] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Sync auth state once on app load
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuth(!!token);
-    setLoading(false);
+    async function init() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await apiRequest("/auth/me");
+        setIsAuth(true);
+        setBranch(res.branch);
+      } catch {
+        localStorage.removeItem("token");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    init();
   }, []);
 
-  // Prevent route flicker
-  if (loading) {
-    return null;
-  }
+  if (loading) return null;
 
   return (
     <>
-      {/* Toast container (global) */}
-      <ToastContainer position="top-center" autoClose={3000} />
-
-      <div className="header">
-        GC Coordinator Voting System
-      </div>
+      <div className="header">GC Coordinator Voting System</div>
 
       <div className="page">
         <Routes>
@@ -39,10 +46,25 @@ function App() {
           />
 
           <Route
+            path="/select-branch"
+            element={
+              isAuth && (!branch || branch === "Unknown") ? (
+                <BranchSelection />
+              ) : (
+                <Navigate to="/vote" />
+              )
+            }
+          />
+
+          <Route
             path="/vote"
             element={
               isAuth ? (
-                <Vote setIsAuth={setIsAuth} />
+                branch && branch !== "Unknown" ? (
+                  <Vote />
+                ) : (
+                  <Navigate to="/select-branch" />
+                )
               ) : (
                 <Navigate to="/login" />
               )

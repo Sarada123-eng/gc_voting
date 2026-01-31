@@ -269,6 +269,28 @@ button:disabled {
   margin-top: 28px;
 }
 
+.branch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.branch-card {
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.branch-card.active {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+
+
 /* =========================
    MOBILE RESPONSIVE
 ========================= */
