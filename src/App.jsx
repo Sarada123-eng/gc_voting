@@ -4,14 +4,11 @@ import Login from "./pages/Login";
 import Vote from "./pages/Vote";
 import BranchSelection from "./pages/BranchSelection";
 import AlreadyVoted from "./pages/AlreadyVoted";
-import AdminDashboard from "./pages/AdminDashboard";
 import { apiRequest } from "./api";
 
 function App() {
   const [isAuth, setIsAuth] = useState(false);
   const [branch, setBranch] = useState(null);
-  const [role, setRole] = useState(null); // "student" | "admin"
-  const [hasVoted, setHasVoted] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,11 +23,6 @@ function App() {
         const res = await apiRequest("/auth/me");
         setIsAuth(true);
         setBranch(res.branch);
-        setHasVoted(res.hasVoted);
-
-        // role comes from JWT payload (stored during login)
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        setRole(payload.role);
       } catch {
         localStorage.removeItem("token");
       } finally {
@@ -49,17 +41,15 @@ function App() {
 
       <div className="page">
         <Routes>
-          {/* LOGIN */}
           <Route
             path="/login"
             element={<Login setIsAuth={setIsAuth} />}
           />
 
-          {/* BRANCH SELECTION */}
           <Route
             path="/select-branch"
             element={
-              isAuth && role === "student" && (!branch || branch === "Unknown") ? (
+              isAuth && (!branch || branch === "Unknown") ? (
                 <BranchSelection />
               ) : (
                 <Navigate to="/vote" />
@@ -67,14 +57,11 @@ function App() {
             }
           />
 
-          {/* VOTE */}
           <Route
             path="/vote"
             element={
-              isAuth && role === "student" ? (
-                hasVoted ? (
-                  <Navigate to="/thank-you" />
-                ) : branch && branch !== "Unknown" ? (
+              isAuth ? (
+                branch && branch !== "Unknown" ? (
                   <Vote />
                 ) : (
                   <Navigate to="/select-branch" />
@@ -85,31 +72,13 @@ function App() {
             }
           />
 
-          {/* THANK YOU */}
           <Route
-            path="/thank-you"
-            element={
-              isAuth && role === "student" ? (
-                <AlreadyVoted />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
+  path="/thank-you"
+  element={
+    isAuth ? <AlreadyVoted /> : <Navigate to="/login" />
+  }
+/>
 
-          {/* ADMIN */}
-          <Route
-            path="/admin"
-            element={
-              isAuth && role === "admin" ? (
-                <AdminDashboard />
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-
-          {/* FALLBACK */}
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </div>
