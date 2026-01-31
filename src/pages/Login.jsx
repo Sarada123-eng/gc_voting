@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
 import { toast } from "react-toastify";
@@ -10,14 +10,45 @@ function Login({ setIsAuth }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [branch, setBranch] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleLogin() {
-    setError("");
-    setLoading(true);
+  // ---------- GOOGLE INIT ----------
+  useEffect(() => {
+    if (!window.google) return;
 
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleGoogleLogin,
+    });
+
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-btn"),
+      { theme: "outline", size: "large", width: 280 }
+    );
+  }, []);
+
+  async function handleGoogleLogin(response) {
     try {
+      setLoading(true);
+      const res = await apiRequest("/auth/google", "POST", {
+        token: response.credential,
+      });
+
+      localStorage.setItem("token", res.token);
+      setIsAuth(true);
+      toast.success("Logged in with Google");
+      navigate("/vote");
+    } catch (err) {
+      toast.error(err.message || "Google login failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ---------- EMAIL LOGIN ----------
+  async function handleLogin() {
+    try {
+      setLoading(true);
       const res = await apiRequest("/auth/login", "POST", {
         email,
         password,
@@ -25,44 +56,38 @@ function Login({ setIsAuth }) {
 
       localStorage.setItem("token", res.token);
       setIsAuth(true);
+      toast.success("Login successful");
       navigate("/vote");
     } catch (err) {
-      setError(err.message || "Login failed");
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
   }
 
   async function handleSignup() {
-    setError("");
-
     if (!email || !password || !branch) {
-      setError("All fields are required");
+      toast.error("All fields required");
       return;
     }
 
-    const emailLower = email.toLowerCase();
-
-    if (!emailLower.endsWith("@iitbbs.ac.in")) {
-      setError("Use your IIT Bhubaneswar email ID");
+    if (!email.toLowerCase().endsWith("@iitbbs.ac.in")) {
+      toast.error("Use IIT Bhubaneswar email");
       return;
     }
 
-    setLoading(true);
     try {
+      setLoading(true);
       await apiRequest("/auth/signup", "POST", {
         email,
         password,
         branch,
       });
 
-      toast.success("Account created successfully. You can now log in.");
+      toast.success("Account created. Login now.");
       setMode("login");
-      setPassword("");
-      setBranch("");
-
     } catch (err) {
-      setError(err.message || "Signup failed");
+      toast.error(err.message || "Signup failed");
     } finally {
       setLoading(false);
     }
@@ -70,82 +95,58 @@ function Login({ setIsAuth }) {
 
   return (
     <div className="auth-page">
-      <div className="auth-card fade-in">
-        <h1 className="auth-title">
-          {mode === "login" ? "Login to Your Account" : "Create an Account"}
-        </h1>
+      <div className="auth-card">
+        <h1>{mode === "login" ? "Login" : "Signup"}</h1>
 
-        <p className="auth-subtitle">
-          {mode === "login"
-            ? "Welcome back! Please enter your details"
-            : "Sign up to participate in GC voting"}
-        </p>
+        {/* GOOGLE BUTTON */}
+        <div id="google-btn" style={{ marginBottom: "16px" }} />
 
-        {error && <p className="error">{error}</p>}
+        <div className="divider">OR</div>
 
-        <label>Email</label>
         <input
           type="email"
           placeholder="joe@iitbbs.ac.in"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
         />
 
-        <label>Password</label>
         <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
         />
 
         {mode === "signup" && (
-          <>
-            <label>Branch</label>
-            <select
-              value={branch}
-              onChange={(e) => setBranch(e.target.value)}
-            >
-              <option value="">Select branch</option>
-              <option value="Civil">Civil</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Mechanical">Mechanical</option>
-              <option value="Electrical">Electrical</option>
-              <option value="ECE+Meta+EP">ECE+Meta+EP</option>
-              <option value="M.Sc. + ITEP">M.Sc. + ITEP</option>
-              <option value="M.tech.">M.tech.</option>
-              <option value="PhD">PhD</option>
-            </select>
-          </>
+          <select value={branch} onChange={e => setBranch(e.target.value)}>
+            <option value="">Select branch</option>
+            <option value="Civil">Civil</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="ECE+Meta+EP">ECE+Meta+EP</option>
+            <option value="M.Sc. + ITEP">M.Sc. + ITEP</option>
+            <option value="PhD">PhD</option>
+          </select>
         )}
 
         {mode === "login" ? (
-          <button
-            className="primary-btn"
-            onClick={handleLogin}
-            disabled={loading}
-          >
+          <button onClick={handleLogin} disabled={loading}>
             Login
           </button>
         ) : (
-          <button
-            className="primary-btn"
-            onClick={handleSignup}
-            disabled={loading}
-          >
+          <button onClick={handleSignup} disabled={loading}>
             Signup
           </button>
         )}
 
         <button
-          className="secondary-btn"
-          onClick={() =>
-            setMode(mode === "login" ? "signup" : "login")
-          }
+          className="secondary"
+          onClick={() => setMode(mode === "login" ? "signup" : "login")}
         >
           {mode === "login"
-            ? "Don't have an account? Sign up"
-            : "Already have an account? Login"}
+            ? "Create account"
+            : "Already have an account?"}
         </button>
       </div>
     </div>
