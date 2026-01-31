@@ -7,7 +7,7 @@ function Login({ setIsAuth }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // ---------- GOOGLE INIT (FIXED) ----------
+  // GOOGLE SDK INIT (reliable)
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.google && document.getElementById("google-btn")) {
@@ -43,8 +43,15 @@ function Login({ setIsAuth }) {
       localStorage.setItem("token", res.token);
       setIsAuth(true);
 
-      toast.success("Logged in with IIT Bhubaneswar Google account");
-      navigate("/vote");
+      toast.success("Signed in successfully");
+
+      if (res.role === "admin") {
+        navigate("/admin");
+      } else if (!res.branch || res.branch === "Unknown") {
+        navigate("/select-branch");
+      } else {
+        navigate("/vote");
+      }
     } catch (err) {
       toast.error(err.message || "Google login failed");
     } finally {
@@ -54,15 +61,14 @@ function Login({ setIsAuth }) {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
+      <div className="auth-card fade-in">
         <h1 className="auth-title">GC Voting Login</h1>
 
         <p className="auth-subtitle">
           Only <b>@iitbbs.ac.in</b> Google accounts are allowed
         </p>
 
-        {/* GOOGLE BUTTON */}
-        <div id="google-btn" style={{ marginTop: "20px" }} />
+        <div id="google-btn" style={{ marginTop: "24px" }} />
 
         {loading && (
           <p style={{ marginTop: "12px", opacity: 0.7 }}>
