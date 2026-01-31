@@ -7,26 +7,29 @@ function Login({ setIsAuth }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // ---------- GOOGLE INIT ----------
+  // ---------- GOOGLE INIT (FIXED) ----------
   useEffect(() => {
-    if (!window.google) {
-      toast.error("Google SDK not loaded");
-      return;
-    }
+    const interval = setInterval(() => {
+      if (window.google && document.getElementById("google-btn")) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleGoogleLogin,
+        });
 
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: handleGoogleLogin,
-    });
+        window.google.accounts.id.renderButton(
+          document.getElementById("google-btn"),
+          {
+            theme: "outline",
+            size: "large",
+            width: 280,
+          }
+        );
 
-    window.google.accounts.id.renderButton(
-      document.getElementById("google-btn"),
-      {
-        theme: "outline",
-        size: "large",
-        width: 280,
+        clearInterval(interval);
       }
-    );
+    }, 100);
+
+    return () => clearInterval(interval);
   }, []);
 
   async function handleGoogleLogin(response) {
